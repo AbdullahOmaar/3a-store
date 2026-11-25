@@ -73,9 +73,14 @@ export function loadOrders(): LocalOrder[] {
   const out: LocalOrder[] = []
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i)
-    if (k && k.startsWith(PREFIX)) {
+    // مفاتيح الطلبات بس (أرقام) — مفاتيح التشيك أوت المساعدة (order-key / order-number)
+    // قيمها مش JSON لطلب، ولو اتقريت كطلب بتكسر الترتيب (createdAt مش موجود)
+    if (k && /^3a-store-order-[0-9]+$/.test(k)) {
       try {
-        out.push(JSON.parse(localStorage.getItem(k)!) as LocalOrder)
+        const parsed = JSON.parse(localStorage.getItem(k)!) as LocalOrder
+        if (parsed && typeof parsed === 'object' && parsed.number && Array.isArray(parsed.items)) {
+          out.push(parsed)
+        }
       } catch {
         // سطر تالف بيتساب
       }
