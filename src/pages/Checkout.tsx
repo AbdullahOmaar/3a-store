@@ -2,6 +2,8 @@ import { useMemo, useRef, useState } from 'react'
 import { useCart } from '../store/cart'
 import { cleanEgyptPhone, egyptPhoneError } from '../lib/arabic'
 import { FREE_SHIPPING_THRESHOLD, governorates } from '../data/governorates'
+import { recordCouponUse, validateCoupon } from '../data/coupons'
+import CouponField from '../components/CouponField'
 
 interface FormState {
   name: string
@@ -32,11 +34,14 @@ export default function CheckoutPage() {
       : `order-${Date.now()}`,
   )
 
+  const [couponError, setCouponError] = useState<string | null>(null)
   const gov = governorates.find((g) => g.name === form.gov)
-  const freeShip = cart.subtotal >= FREE_SHIPPING_THRESHOLD && cart.subtotal > 0
+  // الخصم على إجمالي المنتجات بس مش الشحن، والشحن المجاني بيتحسب على قيمة المنتجات بعد الخصم
+  const productsTotal = cart.subtotal - cart.couponDiscount
+  const freeShip = productsTotal >= FREE_SHIPPING_THRESHOLD && productsTotal > 0
   const shipping = !gov ? 0 : freeShip ? 0 : gov.fee
-  const total = cart.subtotal + shipping
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - cart.subtotal)
+  const total = productsTotal + shipping
+  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - productsTotal)
 
   const set = (k: keyof FormState, v: string) => {
     setForm((f) => ({ ...f, [k]: v, ...(k === 'gov' ? { city: '' } : {}) }))
@@ -72,6 +77,16 @@ export default function CheckoutPage() {
       firstBad?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       return
     }
+    // إعادة تحقق الكود بالموبايل قبل الإنشاء — حد الاستخدام لكل عميل بيتفحص هنا
+    if (cart.couponCode) {
+      const r = validateCoupon(cart.couponCode, cart.subtotal, cart.items.map((i) => i.slug), cleanEgyptPhone(form.phone))
+      if (!r.ok) {
+        setCouponError(r.error)
+        document.querySelector('.coupon-field')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        return
+      }
+    }
+    setCouponError(null)
     setSending(true)
     // محاكاة إنشاء الطلب محليًا لحد ربط الخادم — نفس مفتاح الإرسال = نفس رقم الطلب
     const savedKey = localStorage.getItem('3a-store-order-key')
@@ -97,6 +112,9 @@ export default function CheckoutPage() {
         notes: form.notes,
       },
       subtotal: cart.subtotal,
+      // الخصم بيتجمّد في الطلب وقت الإنشاء — أي تعديل على الكود بعدها مايأثرش عليه
+      couponCode: cart.couponCode ?? undefined,
+      discount: cart.couponDiscount,
       shipping,
       total,
       status: 'new',
@@ -105,9 +123,13 @@ export default function CheckoutPage() {
       history: [{ from: null, to: 'new', at: createdAt, actor: 'system' }],
     }
     localStorage.setItem(`3a-store-order-${number}`, JSON.stringify(order))
+    if (cart.couponCode && cart.couponDiscount > 0) {
+      recordCouponUse(cart.couponCode, cleanEgyptPhone(form.phone), number)
+    }
     setTimeout(() => {
       setDone({ number, total })
       setSending(false)
+      cart.clearCart() // الطلب اتعمل — السلة (والكود) بتتفضى
     }, 600)
   }
 
@@ -155,11 +177,16 @@ export default function CheckoutPage() {
           </div>
         ))}
         <div className="sum-row"><span>الإجمالي الفرعي</span><span dir="ltr">{cart.subtotal} ج.م</span></div>
+        <CouponField />
+        {cart.couponDiscount > 0 && (
+          <div className="sum-row"><span>خصم الكود</span><span dir="ltr">−{cart.couponDiscount} ج.م</span></div>
+        )}
+        {couponError && <div className="f-error">{couponError}</div>}
         <div className="sum-row">
           <span>الشحن{gov ? ` (${gov.name})` : ''}</span>
           <span dir="ltr">{!gov ? '—' : freeShip ? 'مجاني' : `${shipping} ج.م`}</span>
         </div>
-        <div className="sum-row total"><span>الإجمالي</span><span dir="ltr">{gov || freeShip ? `${total} ج.م` : `${cart.subtotal} ج.م + الشحن`}</span></div>
+        <div className="sum-row total"><span>الإجمالي</span><span dir="ltr">{gov || freeShip ? `${total} ج.م` : `${productsTotal} ج.م + الشحن`}</span></div>
         {!freeShip && remaining > 0 && (
           <p className="hint">فاضلك بـ<span dir="ltr">{remaining}</span> جنيه ويبقى الشحن مجاني</p>
         )}

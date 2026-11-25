@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { categories, products } from '../data/sample'
+import { couponStatus, getCoupons } from '../data/coupons'
 import {
   bestSellers,
   byGovernorate,
@@ -31,6 +32,7 @@ function AdminShell({ title, children }: { title: string; children: React.ReactN
         <a href="/admin/reports/coupons">الكوبونات</a>
         <a href="/admin/reports/inventory">المخزون</a>
         <a href="/admin/reports/reorder">إعادة الطلب {alerts > 0 && <span className="badge badge-out">{alerts}</span>}</a>
+        <a href="/admin/coupons">إدارة الكوبونات</a>
       </nav>
       <p className="hint">البيانات لحد {lastUpdatedText()} — بيانات عرض محسوبة من طلبات تجريبية (المبيعات = المسلّمة بس).</p>
       {children}
@@ -235,7 +237,7 @@ export function BestSellersPage() {
 export function CouponsReportPage() {
   const { from, to, controls } = usePeriod()
   const orders = useMemo(() => inRange(sampleOrders, from, to), [from, to])
-  const stats = useMemo(() => couponStats(orders), [orders])
+  const stats = useMemo(() => couponStats(orders, getCoupons()), [orders])
 
   return (
     <AdminShell title="تقرير الكوبونات">
@@ -247,12 +249,13 @@ export function CouponsReportPage() {
             <strong dir="ltr">{c.code}</strong>{' '}
             <span className="badge badge-sale">{c.type === 'percent' ? `خصم ${c.value}٪` : `خصم ${c.value} ج.م`}</span>{' '}
             {c.unused && <span className="badge badge-out">مش مستخدم — اقتراح: وقّفه</span>}
-            {c.status === 'expired' && <span className="badge badge-out">منتهي</span>}
+            {couponStatus(c) === 'expired' && <span className="badge badge-out">منتهي</span>}
+            {couponStatus(c) === 'paused' && <span className="badge badge-out">موقوف</span>}
           </div>
           <div className="hint">استخدم <span dir="ltr">{c.uses}</span> مرة • إجمالي الخصم المصروف <span dir="ltr">{c.discountTotal} ج.م</span></div>
           <div className="hint">مبيعات الطلبات اللي استخدمته: <span dir="ltr">{c.sales} ج.م</span></div>
           <div className="hint">متوسط الطلب مع الكود <span dir="ltr">{c.avgWith} ج.م</span> مقابل من غيره <span dir="ltr">{c.avgWithout} ج.م</span></div>
-          <div className="hint">الحد الأدنى: <span dir="ltr">{c.minOrder} ج.م</span> • من {c.createdAt} لحد {c.endsAt}</div>
+          <div className="hint">الحد الأدنى: <span dir="ltr">{c.minOrder} ج.م</span> • من {c.startsAt} لحد {c.endsAt}</div>
         </div>
       ))}
       <button type="button" className="tool-btn" onClick={() =>
@@ -260,7 +263,7 @@ export function CouponsReportPage() {
           stats.map((c) => [c.code, c.uses, c.discountTotal, c.sales, c.avgWith, c.avgWithout]))}>
         تصدير CSV
       </button>
-      <p className="hint">إدارة الكوبونات نفسها (إنشاء/إيقاف) من حزمة P1-أ — لسه ما اتنفذتش في دفعة منفصلة؛ التقرير ده للقراءة والقرار.</p>
+      <p className="hint">إدارة الكوبونات (إنشاء/تعديل/إيقاف) من <a href="/admin/coupons">صفحة إدارة الكوبونات</a> — التقرير ده للقراءة والقرار.</p>
     </AdminShell>
   )
 }

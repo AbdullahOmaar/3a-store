@@ -4,6 +4,7 @@
 // الأرقام تبقى ثابتة بين كل تحميل. لما القاعدة تتربط، المصفوفة دي بتتبدل باستعلامات.
 import { governorates } from './governorates'
 import { products } from './sample'
+import type { Coupon } from './coupons'
 
 export interface ReportItem {
   slug: string
@@ -22,16 +23,6 @@ export interface ReportOrder {
   shipping: number
   coupon?: string
   discount?: number
-}
-
-export interface Coupon {
-  code: string
-  type: 'percent' | 'fixed'
-  value: number
-  minOrder: number
-  createdAt: string
-  endsAt: string
-  status: 'active' | 'paused' | 'expired'
 }
 
 // حد إعادة الطلب اللي الأدمن حاطه لكل منتج (افتراضي ٥ — حزمة التقارير هـ٥)
@@ -88,12 +79,6 @@ function buildOrders(): ReportOrder[] {
 }
 
 export const sampleOrders: ReportOrder[] = buildOrders()
-
-export const sampleCoupons: Coupon[] = [
-  { code: 'WELCOME10', type: 'percent', value: 10, minOrder: 300, createdAt: '2026-10-20', endsAt: '2026-12-31', status: 'active' },
-  { code: 'SALE15', type: 'percent', value: 15, minOrder: 500, createdAt: '2026-11-10', endsAt: '2026-11-30', status: 'active' },
-  { code: 'OLD5', type: 'percent', value: 5, minOrder: 0, createdAt: '2026-10-01', endsAt: '2026-12-31', status: 'active' },
-]
 
 // ---------- حسابات (كلها من الطلبات الحقيقية في المصفوفة) ----------
 
@@ -197,9 +182,9 @@ export function bestSellers(orders: ReportOrder[]) {
     .sort((a, b) => b.qty - a.qty)
 }
 
-export function couponStats(orders: ReportOrder[]) {
+export function couponStats(orders: ReportOrder[], coupons: Coupon[]) {
   const d = delivered(orders)
-  return sampleCoupons.map((c) => {
+  return coupons.map((c) => {
     const used = d.filter((o) => o.coupon === c.code)
     const usedSales = used.reduce((a, o) => a + orderProductsTotal(o), 0)
     const noCoupon = d.filter((o) => !o.coupon)
@@ -207,7 +192,7 @@ export function couponStats(orders: ReportOrder[]) {
     const avgWithout = noCoupon.length
       ? Math.round(noCoupon.reduce((a, o) => a + orderProductsTotal(o), 0) / noCoupon.length)
       : 0
-    const createdDays = Math.floor((Date.now() - new Date(c.createdAt).getTime()) / 86400000)
+    const createdDays = Math.floor((Date.now() - new Date(c.startsAt).getTime()) / 86400000)
     return {
       ...c,
       uses: used.length,

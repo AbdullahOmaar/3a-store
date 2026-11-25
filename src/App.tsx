@@ -7,6 +7,7 @@ import ProductPage from './pages/Product'
 import CheckoutPage from './pages/Checkout'
 import { ContactPage, MyOrdersPage, ReturnsPage, ShippingPage, TrackPage } from './pages/Trust'
 import { BestSellersPage, CouponsReportPage, InventoryReportPage, ReorderAlertsPage, ReportsIndexPage, SalesReportPage } from './pages/Reports'
+import CouponsAdminPage from './pages/Coupons'
 
 function Shell() {
   const cart = useCart()
@@ -31,6 +32,7 @@ function Shell() {
   else if (path === '/admin/reports/coupons') page = <CouponsReportPage />
   else if (path === '/admin/reports/inventory') page = <InventoryReportPage />
   else if (path === '/admin/reports/reorder') page = <ReorderAlertsPage />
+  else if (path === '/admin/coupons') page = <CouponsAdminPage />
   else
     page = (
       <main className="empty">

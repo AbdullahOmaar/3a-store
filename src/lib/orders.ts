@@ -16,6 +16,8 @@ export interface LocalOrder {
   items: { slug: string; name: string; emoji: string; size: string; color: string; price: number; qty: number }[]
   form: { full_name: string; phone: string; governorate: string; city: string; address: string; notes?: string }
   subtotal: number
+  couponCode?: string
+  discount?: number
   shipping: number
   total: number
   status: string

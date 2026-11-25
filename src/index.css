@@ -227,3 +227,9 @@ a.logo { color: var(--ink); text-decoration: none; margin-inline-end: auto; }
 .bars-labels { display: flex; gap: 4px; margin-block-start: 4px; }
 .bars-labels span { flex: 1; text-align: center; font-size: 0.7rem; color: var(--muted); }
 .tabs { display: flex; gap: 8px; margin-block: 12px; }
+
+/* ==== الكوبونات (دفعة 9) ==== */
+.coupon-field { margin-block: 10px; }
+.coupon-row { display: flex; gap: 8px; }
+.coupon-row input { flex: 1; min-width: 0; min-height: 44px; border: 1px solid var(--line); border-radius: 10px; padding-inline: 10px; font-family: inherit; font-size: 1rem; }
+.coupon-applied { display: flex; align-items: center; justify-content: space-between; gap: 8px; border: 1px dashed var(--accent); border-radius: 10px; padding: 10px 12px; margin-block: 10px; }

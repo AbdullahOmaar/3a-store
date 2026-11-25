@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { validateCoupon } from '../data/coupons'
 
 export interface CartItem {
   key: string // productSlug + size + color — سطر واحد لكل متغير (حزمة 2)
@@ -21,6 +22,12 @@ interface CartCtx {
   count: number
   open: boolean
   setOpen: (v: boolean) => void
+  // الكوبون — كود واحد بس لكل طلب، والخصم على إجمالي المنتجات بس مش الشحن (حزمة P1-أ)
+  couponCode: string | null
+  couponDiscount: number
+  applyCoupon: (code: string) => string | null // بيرجع رسالة الخطأ أو null عند النجاح
+  removeCoupon: () => void
+  clearCart: () => void
 }
 
 const Ctx = createContext<CartCtx | null>(null)
@@ -35,10 +42,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   })
   const [open, setOpen] = useState(false)
+  const [couponCode, setCouponCode] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('3a-store-coupon') || null
+    } catch {
+      return null
+    }
+  })
 
   useEffect(() => {
     localStorage.setItem(LS_KEY, JSON.stringify(items))
   }, [items])
+
+  useEffect(() => {
+    if (couponCode) localStorage.setItem('3a-store-coupon', couponCode)
+    else localStorage.removeItem('3a-store-coupon')
+  }, [couponCode])
 
   const add: CartCtx['add'] = (item) => {
     const key = `${item.slug}|${item.size}|${item.color}`
@@ -67,8 +86,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const subtotal = useMemo(() => items.reduce((a, i) => a + i.price * i.qty, 0), [items])
   const count = useMemo(() => items.reduce((a, i) => a + i.qty, 0), [items])
 
+  // الخصم بيتحسب من جديد كل مرة من الكود المخزن — لو السلة اتغيرت وبقى الكود مش صالح، الخصم بيبقى صفر
+  const couponDiscount = useMemo(() => {
+    if (!couponCode) return 0
+    const r = validateCoupon(couponCode, subtotal, items.map((i) => i.slug))
+    return r.ok ? r.discount : 0
+  }, [couponCode, subtotal, items])
+
+  const applyCoupon = (code: string): string | null => {
+    const r = validateCoupon(code, subtotal, items.map((i) => i.slug))
+    if (!r.ok) return r.error
+    setCouponCode(r.coupon.code)
+    return null
+  }
+  const removeCoupon = () => setCouponCode(null)
+  const clearCart = () => {
+    setItems([])
+    setCouponCode(null)
+  }
+
   return (
-    <Ctx.Provider value={{ items, add, setQty, remove, subtotal, count, open, setOpen }}>
+    <Ctx.Provider value={{ items, add, setQty, remove, subtotal, count, open, setOpen, couponCode, couponDiscount, applyCoupon, removeCoupon, clearCart }}>
       {children}
     </Ctx.Provider>
   )

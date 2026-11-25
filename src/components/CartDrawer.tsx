@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useCart } from '../store/cart'
+import CouponField from './CouponField'
 
 // درج السلة بيفتح من الشمال (جهة النهاية في RTL — حزمة 1)
 export default function CartDrawer() {
@@ -42,6 +43,7 @@ export default function CartDrawer() {
             <div className="cart-total">
               الإجمالي الفرعي: <strong dir="ltr">{cart.subtotal} ج.م</strong>
             </div>
+            <CouponField />
             <p className="hint">الشحن بيتحسب على حسب محافظتك في الخطوة الجاية.</p>
             <a className="cta-btn block" href="/checkout">إتمام الطلب</a>
             <button type="button" className="tool-btn block" onClick={() => cart.setOpen(false)}>
