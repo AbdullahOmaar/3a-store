@@ -5,6 +5,7 @@ import CartDrawer from './components/CartDrawer'
 import { HomePage, CategoryPage, SearchPage } from './pages/Shop'
 import ProductPage from './pages/Product'
 import CheckoutPage from './pages/Checkout'
+import { ContactPage, MyOrdersPage, ReturnsPage, ShippingPage, TrackPage } from './pages/Trust'
 
 function Shell() {
   const cart = useCart()
@@ -18,6 +19,11 @@ function Shell() {
   else if (path === '/search') page = <SearchPage query={params.get('q') ?? ''} />
   else if (path.startsWith('/product/')) page = <ProductPage slug={path.split('/')[2] ?? ''} />
   else if (path === '/checkout') page = <CheckoutPage />
+  else if (path === '/returns') page = <ReturnsPage />
+  else if (path === '/shipping') page = <ShippingPage />
+  else if (path === '/contact') page = <ContactPage />
+  else if (path === '/track') page = <TrackPage presetNumber={params.get('number') ?? undefined} />
+  else if (path === '/my-orders') page = <MyOrdersPage />
   else
     page = (
       <main className="empty">
@@ -56,7 +62,13 @@ function Shell() {
 
       <footer className="footer">
         <div>الأقسام: {categories.map((c) => c.name).join(' • ')}</div>
-        <div>سياسة الاستبدال والاسترجاع • الشحن والتوصيل • تواصل معانا واتساب</div>
+        <div>
+          <a href="/returns">سياسة الاستبدال والاسترجاع</a> •{' '}
+          <a href="/shipping">الشحن والتوصيل</a> •{' '}
+          <a href="/contact">تواصل معانا</a> •{' '}
+          <a href="/track">تتبّع طلبك</a> •{' '}
+          <a href="/my-orders">طلباتي</a>
+        </div>
       </footer>
       <CartDrawer />
     </div>

@@ -82,15 +82,27 @@ export default function CheckoutPage() {
         : String(1000 + Math.floor(Math.random() * 9000))
     localStorage.setItem('3a-store-order-key', idempotencyKey.current)
     localStorage.setItem('3a-store-order-number', number)
+    const createdAt = new Date().toISOString()
     const order = {
       number,
-      items: cart.items,
-      form: { ...form, phone: cleanEgyptPhone(form.phone) },
+      items: cart.items.map((i) => ({
+        slug: i.slug, name: i.name, emoji: i.emoji, size: i.size, color: i.color, price: i.price, qty: i.qty,
+      })),
+      form: {
+        full_name: form.name,
+        phone: cleanEgyptPhone(form.phone),
+        governorate: form.gov,
+        city: form.city,
+        address: form.address,
+        notes: form.notes,
+      },
       subtotal: cart.subtotal,
       shipping,
       total,
       status: 'new',
-      createdAt: new Date().toISOString(),
+      createdAt,
+      // سجل التغييرات بيبدأ بسطر الإنشاء — أي انتقال بعد كده لازم يسجّل سطر زيه (حزمة 2)
+      history: [{ from: null, to: 'new', at: createdAt, actor: 'system' }],
     }
     localStorage.setItem(`3a-store-order-${number}`, JSON.stringify(order))
     setTimeout(() => {
@@ -110,6 +122,7 @@ export default function CheckoutPage() {
         <p className="hint">
           هنكلّمك على واتساب/تليفونك نأكد الطلب قبل الشحن، والدفع كاش عند الاستلام.
         </p>
+        <a className="cta" href={`/track?number=${done.number}`}>تتبّع طلبك</a>{' '}
         <a className="cta" href="/">كمّل تسوّق</a>
       </main>
     )
