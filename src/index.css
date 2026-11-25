@@ -188,3 +188,14 @@ a.logo { color: var(--ink); text-decoration: none; margin-inline-end: auto; }
 .cart-line { display: flex; gap: 10px; padding-block: 12px; border-bottom: 1px solid var(--line); }
 .cart-line-main { flex: 1; }
 .cart-total { margin-block: 14px; font-size: 1.05rem; }
+
+/* ==== تشيك أوت (حزمة 2-ب) ==== */
+.summary-box, .pay-box { border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin-block: 12px; }
+.sum-row { display: flex; justify-content: space-between; padding-block: 4px; }
+.sum-row.total { font-weight: 800; border-top: 1px solid var(--line); margin-block-start: 6px; padding-block-start: 10px; }
+.f-field select, .f-field textarea {
+  width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 10px;
+  padding-inline: 10px; font-family: inherit; font-size: 1rem; background: var(--bg);
+}
+.f-field textarea { padding-block: 10px; }
+.cta-btn.big { min-height: 54px; font-size: 1.1rem; margin-block: 16px 30px; width: 100%; }

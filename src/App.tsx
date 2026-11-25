@@ -4,6 +4,7 @@ import { CartProvider, useCart } from './store/cart'
 import CartDrawer from './components/CartDrawer'
 import { HomePage, CategoryPage, SearchPage } from './pages/Shop'
 import ProductPage from './pages/Product'
+import CheckoutPage from './pages/Checkout'
 
 function Shell() {
   const cart = useCart()
@@ -16,13 +17,7 @@ function Shell() {
   else if (path.startsWith('/category/')) page = <CategoryPage slug={path.split('/')[2] ?? ''} />
   else if (path === '/search') page = <SearchPage query={params.get('q') ?? ''} />
   else if (path.startsWith('/product/')) page = <ProductPage slug={path.split('/')[2] ?? ''} />
-  else if (path === '/checkout')
-    page = (
-      <main className="empty">
-        <p>صفحة إتمام الطلب جاية في الدفعة الجاية (حزمة ٢) — سلتك محفوظة.</p>
-        <a className="cta" href="/">ارجع للمتجر</a>
-      </main>
-    )
+  else if (path === '/checkout') page = <CheckoutPage />
   else
     page = (
       <main className="empty">

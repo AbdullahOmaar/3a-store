@@ -1,0 +1,218 @@
+import { useMemo, useRef, useState } from 'react'
+import { useCart } from '../store/cart'
+import { cleanEgyptPhone, egyptPhoneError } from '../lib/arabic'
+import { FREE_SHIPPING_THRESHOLD, governorates } from '../data/governorates'
+
+interface FormState {
+  name: string
+  phone: string
+  phoneAlt: string
+  gov: string
+  city: string
+  address: string
+  landmark: string
+  notes: string
+}
+
+const initial: FormState = {
+  name: '', phone: '', phoneAlt: '', gov: '', city: '', address: '', landmark: '', notes: '',
+}
+
+// تشيك أوت صفحة واحدة (حزمة 2-ب). الأسعار النهائية هتتحسب من الخادم وقت الربط —
+// هنا الحساب المحلي للعرض، ومفتاح الإرسال بيمنع الطلب المكرر من ضغطة تانية.
+export default function CheckoutPage() {
+  const cart = useCart()
+  const [form, setForm] = useState<FormState>(initial)
+  const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
+  const [sending, setSending] = useState(false)
+  const [done, setDone] = useState<{ number: string; total: number } | null>(null)
+  const idempotencyKey = useRef(
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID()
+      : `order-${Date.now()}`,
+  )
+
+  const gov = governorates.find((g) => g.name === form.gov)
+  const freeShip = cart.subtotal >= FREE_SHIPPING_THRESHOLD && cart.subtotal > 0
+  const shipping = !gov ? 0 : freeShip ? 0 : gov.fee
+  const total = cart.subtotal + shipping
+  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - cart.subtotal)
+
+  const set = (k: keyof FormState, v: string) => {
+    setForm((f) => ({ ...f, [k]: v, ...(k === 'gov' ? { city: '' } : {}) }))
+    setErrors((e) => ({ ...e, [k]: undefined }))
+  }
+
+  const validate = (): boolean => {
+    const e: Partial<Record<keyof FormState, string>> = {}
+    if (!form.name.trim()) e.name = 'اكتب اسمك بالكامل'
+    else if (form.name.trim().length < 3) e.name = 'الاسم قصير قوي، اكتبه زي ما هو في البطاقة'
+    const pe = egyptPhoneError(form.phone)
+    if (pe) e.phone = pe
+    if (form.phoneAlt) {
+      const pa = egyptPhoneError(form.phoneAlt)
+      if (pa) e.phoneAlt = pa
+      else if (cleanEgyptPhone(form.phoneAlt) === cleanEgyptPhone(form.phone))
+        e.phoneAlt = 'ده نفس الرقم الأساسي، اكتب رقم تاني أو سيبه فاضي'
+    }
+    if (!form.gov) e.gov = 'اختار محافظتك عشان نحسبلك الشحن'
+    if (form.gov && !form.city) e.city = 'اختار مدينتك/منطقتك'
+    if (!form.address.trim()) e.address = 'اكتب عنوانك بالتفصيل (شارع وعمارة) عشان المندوب يوصلك من غير ما يدوخ'
+    else if (form.address.trim().length < 10)
+      e.address = 'اكتب عنوانك بالتفصيل (شارع وعمارة) عشان المندوب يوصلك من غير ما يدوخ'
+    setErrors(e)
+    return Object.keys(e).length === 0
+  }
+
+  const submit = () => {
+    if (sending) return
+    if (cart.items.length === 0) return
+    if (!validate()) {
+      const firstBad = document.querySelector('.f-error')
+      firstBad?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+    setSending(true)
+    // محاكاة إنشاء الطلب محليًا لحد ربط الخادم — نفس مفتاح الإرسال = نفس رقم الطلب
+    const savedKey = localStorage.getItem('3a-store-order-key')
+    const savedNumber = localStorage.getItem('3a-store-order-number')
+    const number =
+      savedKey === idempotencyKey.current && savedNumber
+        ? savedNumber
+        : String(1000 + Math.floor(Math.random() * 9000))
+    localStorage.setItem('3a-store-order-key', idempotencyKey.current)
+    localStorage.setItem('3a-store-order-number', number)
+    const order = {
+      number,
+      items: cart.items,
+      form: { ...form, phone: cleanEgyptPhone(form.phone) },
+      subtotal: cart.subtotal,
+      shipping,
+      total,
+      status: 'new',
+      createdAt: new Date().toISOString(),
+    }
+    localStorage.setItem(`3a-store-order-${number}`, JSON.stringify(order))
+    setTimeout(() => {
+      setDone({ number, total })
+      setSending(false)
+    }, 600)
+  }
+
+  if (done) {
+    return (
+      <main className="empty">
+        <h1 className="page-title">اتعمل طلبك ✅</h1>
+        <p>رقم الطلب: <strong dir="ltr">#{done.number}</strong></p>
+        <p>
+          الإجمالي المطلوب كاش عند الاستلام: <strong dir="ltr">{done.total} ج.م</strong>
+        </p>
+        <p className="hint">
+          هنكلّمك على واتساب/تليفونك نأكد الطلب قبل الشحن، والدفع كاش عند الاستلام.
+        </p>
+        <a className="cta" href="/">كمّل تسوّق</a>
+      </main>
+    )
+  }
+
+  if (cart.items.length === 0) {
+    return (
+      <main className="empty">
+        <p>سلتك فاضية — ضيف منتجات الأول</p>
+        <a className="cta" href="/">ارجع للمتجر</a>
+      </main>
+    )
+  }
+
+  const errorCount = Object.values(errors).filter(Boolean).length
+
+  return (
+    <main>
+      <h1 className="page-title">إتمام الطلب</h1>
+
+      <section className="summary-box">
+        {cart.items.map((i) => (
+          <div className="cart-line" key={i.key}>
+            <span aria-hidden>{i.emoji}</span>
+            <div className="cart-line-main">
+              <div>{i.name}</div>
+              <div className="hint">مقاس {i.size} • {i.color} • <span dir="ltr">×{i.qty}</span></div>
+            </div>
+            <span dir="ltr">{i.price * i.qty} ج.م</span>
+          </div>
+        ))}
+        <div className="sum-row"><span>الإجمالي الفرعي</span><span dir="ltr">{cart.subtotal} ج.م</span></div>
+        <div className="sum-row">
+          <span>الشحن{gov ? ` (${gov.name})` : ''}</span>
+          <span dir="ltr">{!gov ? '—' : freeShip ? 'مجاني' : `${shipping} ج.م`}</span>
+        </div>
+        <div className="sum-row total"><span>الإجمالي</span><span dir="ltr">{gov || freeShip ? `${total} ج.م` : `${cart.subtotal} ج.م + الشحن`}</span></div>
+        {!freeShip && remaining > 0 && (
+          <p className="hint">فاضلك بـ<span dir="ltr">{remaining}</span> جنيه ويبقى الشحن مجاني</p>
+        )}
+        {gov && <p className="hint">التوصيل المتوقع: {gov.days}</p>}
+      </section>
+
+      {errorCount > 0 && (
+        <div className="f-error">فيه <span dir="ltr">{errorCount}</span> حاجات محتاجة تتصلح تحت</div>
+      )}
+
+      <form onSubmit={(e) => { e.preventDefault(); submit() }} noValidate>
+        <label className="f-field">الاسم بالكامل
+          <input value={form.name} onChange={(e) => set('name', e.target.value)} autoComplete="name" />
+          {errors.name && <span className="f-error">{errors.name}</span>}
+        </label>
+        <label className="f-field">رقم الموبايل
+          <input type="tel" dir="ltr" value={form.phone} onChange={(e) => set('phone', e.target.value)} autoComplete="tel" />
+          {errors.phone && <span className="f-error">{errors.phone}</span>}
+        </label>
+        <label className="f-field">موبايل بديل (اختياري)
+          <input type="tel" dir="ltr" value={form.phoneAlt} onChange={(e) => set('phoneAlt', e.target.value)} />
+          {errors.phoneAlt && <span className="f-error">{errors.phoneAlt}</span>}
+        </label>
+        <label className="f-field">المحافظة
+          <select value={form.gov} onChange={(e) => set('gov', e.target.value)}>
+            <option value="">اختار محافظتك…</option>
+            {governorates.map((g) => (
+              <option key={g.name} value={g.name}>{g.name} — شحن {g.fee} ج.م</option>
+            ))}
+          </select>
+          {errors.gov && <span className="f-error">{errors.gov}</span>}
+        </label>
+        <label className="f-field">المدينة/المنطقة
+          <select value={form.city} onChange={(e) => set('city', e.target.value)} disabled={!gov}>
+            <option value="">اختار مدينتك…</option>
+            {gov?.cities.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          {errors.city && <span className="f-error">{errors.city}</span>}
+        </label>
+        <label className="f-field">العنوان بالتفصيل
+          <input value={form.address} onChange={(e) => set('address', e.target.value)} autoComplete="street-address" />
+          {errors.address && <span className="f-error">{errors.address}</span>}
+        </label>
+        <label className="f-field">علامة مميزة (اختياري)
+          <input value={form.landmark} onChange={(e) => set('landmark', e.target.value)} placeholder="جنب صيدلية كذا…" />
+        </label>
+        <label className="f-field">ملاحظات الطلب (اختياري — <span dir="ltr">{form.notes.length}</span>/٥٠٠)
+          <textarea value={form.notes} maxLength={500} onChange={(e) => set('notes', e.target.value)} rows={3} />
+        </label>
+
+        <div className="pay-box">
+          <strong>طريقة الدفع: الدفع عند الاستلام (كاش)</strong>
+          <p className="hint">
+            هتدفع <span dir="ltr">{total}</span> جنيه للمندوب عند الاستلام
+            {gov ? '' : ' — اختار المحافظة عشان يظهر الإجمالي النهائي بالشحن'}.
+          </p>
+        </div>
+
+        <button type="submit" className="cta-btn block big" disabled={sending}>
+          {sending ? 'بنعمل طلبك…' : 'أكّد الطلب'}
+        </button>
+      </form>
+    </main>
+  )
+}
+
+export function useCheckoutSummary() {
+  return useMemo(() => FREE_SHIPPING_THRESHOLD, [])
+}
