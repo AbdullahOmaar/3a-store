@@ -1,54 +1,55 @@
-import { categories, products, type SampleProduct } from './data/sample'
+import { useState } from 'react'
+import { categories } from './data/sample'
+import { CartProvider, useCart } from './store/cart'
+import CartDrawer from './components/CartDrawer'
+import { HomePage, CategoryPage, SearchPage } from './pages/Shop'
+import ProductPage from './pages/Product'
 
-function discountPct(p: SampleProduct): number | null {
-  if (!p.priceBefore) return null
-  return Math.round((1 - p.price / p.priceBefore) * 100)
-}
+function Shell() {
+  const cart = useCart()
+  const [search, setSearch] = useState('')
+  const path = location.pathname
+  const params = new URLSearchParams(location.search)
 
-// كارت منتج موحّد في كل مكان (حزمة 5): صورة 4:5، اسم سطرين كحد أقصى،
-// سعر حالي + قديم مشطوب، شارة خصم/جديد/نفد. الضغطة على الكارت كله.
-function ProductCard({ p }: { p: SampleProduct }) {
-  const pct = discountPct(p)
-  return (
-    <a className="card" href={`/product/${p.slug}`}>
-      <div className="card-img">
-        <span className="card-emoji" aria-hidden>{p.emoji}</span>
-        {pct && <span className="badge badge-sale">خصم {pct}٪</span>}
-        {p.badge && <span className="badge badge-new">{p.badge}</span>}
-      </div>
-      <div className="card-body">
-        <div className="card-name">{p.name}</div>
-        <div className="card-price">
-          <span className="price-now" dir="ltr">{p.price} ج.م</span>
-          {p.priceBefore && (
-            <span className="price-old" dir="ltr">{p.priceBefore} ج.م</span>
-          )}
-        </div>
-      </div>
-    </a>
-  )
-}
+  let page: React.ReactNode
+  if (path === '/' || path === '') page = <HomePage />
+  else if (path.startsWith('/category/')) page = <CategoryPage slug={path.split('/')[2] ?? ''} />
+  else if (path === '/search') page = <SearchPage query={params.get('q') ?? ''} />
+  else if (path.startsWith('/product/')) page = <ProductPage slug={path.split('/')[2] ?? ''} />
+  else if (path === '/checkout')
+    page = (
+      <main className="empty">
+        <p>صفحة إتمام الطلب جاية في الدفعة الجاية (حزمة ٢) — سلتك محفوظة.</p>
+        <a className="cta" href="/">ارجع للمتجر</a>
+      </main>
+    )
+  else
+    page = (
+      <main className="empty">
+        <p>الصفحة دي مش موجودة</p>
+        <a className="cta" href="/">ارجع للرئيسية</a>
+      </main>
+    )
 
-export default function App() {
-  const bestSellers = products.slice(0, 8)
-  const offers = products.filter((p) => p.priceBefore)
   return (
     <div className="page">
       <header className="header">
         <div className="header-row">
-          <div className="logo">المتجر</div>
-          <button className="cart-btn" type="button">
-            السلة <span className="cart-count" dir="ltr">0</span>
+          <a className="logo" href="/">المتجر</a>
+          <button className="cart-btn" type="button" onClick={() => cart.setOpen(true)}>
+            السلة <span className="cart-count" dir="ltr">{cart.count}</span>
           </button>
         </div>
-        <div className="header-row">
-          <input
-            className="search"
-            type="search"
-            placeholder="دوّر على منتج… (تيشيرت، فستان، شنطة)"
-            aria-label="بحث"
-          />
-        </div>
+        <form
+          className="header-row"
+          onSubmit={(e) => {
+            e.preventDefault()
+            location.href = `/search?q=${encodeURIComponent(search)}`
+          }}
+        >
+          <input className="search" type="search" value={search} onChange={(e) => setSearch(e.target.value)}
+            placeholder="دوّر على منتج…" aria-label="بحث" />
+        </form>
         <nav className="header-cats" aria-label="الأقسام">
           {categories.map((c) => (
             <a key={c.slug} href={`/category/${c.slug}`}>{c.name}</a>
@@ -56,65 +57,21 @@ export default function App() {
         </nav>
       </header>
 
-      <main>
-        <section className="banner">
-          <h1>لبس يومي بأسعار على قد الإيد</h1>
-          <p>الدفع عند الاستلام — شحن لكل المحافظات — استبدال خلال ١٤ يوم</p>
-          <a className="cta" href="#new">تسوّق دلوقتي</a>
-        </section>
-
-        <section className="cats-row" aria-label="تسوق حسب القسم">
-          {categories.map((c) => (
-            <a key={c.slug} className="cat-circle" href={`/category/${c.slug}`}>
-              <span className="cat-emoji" aria-hidden>{c.emoji}</span>
-              <span>{c.name}</span>
-            </a>
-          ))}
-        </section>
-
-        <section>
-          <h2>الأكثر مبيعًا</h2>
-          <div className="hscroll">
-            {bestSellers.map((p) => (
-              <div className="hscroll-item" key={p.id}>
-                <ProductCard p={p} />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section id="new">
-          <h2>وصل حديثًا</h2>
-          <div className="grid">
-            {products.map((p) => (
-              <ProductCard key={p.id} p={p} />
-            ))}
-          </div>
-        </section>
-
-        {offers.length > 0 && (
-          <section>
-            <h2>عروض وخصومات</h2>
-            <div className="grid">
-              {offers.map((p) => (
-                <ProductCard key={p.id} p={p} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        <section className="trust">
-          <div>💵 الدفع عند الاستلام</div>
-          <div>🚚 شحن لكل المحافظات</div>
-          <div>🔁 استبدال واسترجاع خلال ١٤ يوم</div>
-          <div>💬 واتساب للاستفسار</div>
-        </section>
-      </main>
+      {page}
 
       <footer className="footer">
         <div>الأقسام: {categories.map((c) => c.name).join(' • ')}</div>
         <div>سياسة الاستبدال والاسترجاع • الشحن والتوصيل • تواصل معانا واتساب</div>
       </footer>
+      <CartDrawer />
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <CartProvider>
+      <Shell />
+    </CartProvider>
   )
 }
