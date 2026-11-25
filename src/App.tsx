@@ -8,6 +8,7 @@ import CheckoutPage from './pages/Checkout'
 import { ContactPage, MyOrdersPage, ReturnsPage, ShippingPage, TrackPage } from './pages/Trust'
 import { BestSellersPage, CouponsReportPage, InventoryReportPage, ReorderAlertsPage, ReportsIndexPage, SalesReportPage } from './pages/Reports'
 import CouponsAdminPage from './pages/Coupons'
+import VersionLine from './components/VersionLine'
 
 function Shell() {
   const cart = useCart()
@@ -79,6 +80,7 @@ function Shell() {
           <a href="/my-orders">طلباتي</a> •{' '}
           <a href="/admin/reports">تقارير المتجر</a>
         </div>
+        <VersionLine />
       </footer>
       <CartDrawer />
     </div>

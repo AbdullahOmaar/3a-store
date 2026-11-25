@@ -3,6 +3,7 @@ import { categories, products } from '../data/sample'
 import ProductCard from '../components/ProductCard'
 import ProductListing from '../components/ProductListing'
 import { matchesQuery } from '../lib/arabic'
+import VersionLine from '../components/VersionLine'
 
 export function HomePage() {
   const best = useMemo(() => [...products].sort((a, b) => b.sales - a.sales).slice(0, 8), [])
@@ -22,6 +23,7 @@ export function HomePage() {
         <h1>لبس يومي بأسعار على قد الإيد</h1>
         <p>الدفع عند الاستلام — شحن لكل المحافظات — استبدال خلال ١٤ يوم</p>
         <a className="cta" href="#new">تسوّق دلوقتي</a>
+        <VersionLine />
       </section>
 
       <section className="cats-row" aria-label="تسوق حسب القسم">
