@@ -1,0 +1,95 @@
+/* متجر 3A — عربي RTL من الجذر، موبايل أولًا، خصائص CSS منطقية بس.
+   ممنوع: margin-left/right و left/right في التخطيط.
+   الأرقام والأسعار والتليفونات بتتعزل بـ dir=ltr ومابتتميّررش. */
+:root {
+  --bg: #ffffff;
+  --ink: #1c1c1e;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --accent: #0f766e;
+  --sale: #dc2626;
+  font-size: 16px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Cairo', system-ui, sans-serif;
+  font-size: 1rem; /* 16px — جسم النص بين 15 و18 */
+  line-height: 1.7;
+  color: var(--ink);
+  background: var(--bg);
+}
+.page { max-width: 1100px; margin-inline: auto; padding-inline: 12px; }
+.header {
+  position: sticky; top: 0; background: var(--bg);
+  border-bottom: 1px solid var(--line); padding-block: 8px; z-index: 10;
+}
+.header-row { display: flex; align-items: center; gap: 8px; margin-block-end: 8px; }
+.logo { font-weight: 800; font-size: 1.3rem; margin-inline-end: auto; }
+.cart-btn {
+  min-height: 44px; padding-inline: 14px; border: 1px solid var(--line);
+  border-radius: 10px; background: var(--bg); font-family: inherit; font-size: 1rem;
+}
+.cart-count { background: var(--accent); color: #fff; border-radius: 999px; padding-inline: 7px; }
+.search {
+  width: 100%; min-height: 44px; padding-inline: 12px; font-family: inherit;
+  font-size: 1rem; border: 1px solid var(--line); border-radius: 10px;
+}
+.header-cats { display: flex; gap: 14px; overflow-x: auto; }
+.header-cats a { color: var(--ink); text-decoration: none; white-space: nowrap; padding-block: 4px; }
+.banner {
+  background: #f0fdfa; border-radius: 16px; padding: 24px 16px;
+  text-align: center; margin-block: 16px;
+}
+.banner h1 { font-size: 1.5rem; margin-block: 0 8px; }
+.cta {
+  display: inline-block; margin-block-start: 10px; min-height: 48px;
+  padding-inline: 22px; line-height: 48px; border-radius: 12px;
+  background: var(--accent); color: #fff; text-decoration: none; font-weight: 700;
+}
+.cats-row { display: flex; gap: 16px; overflow-x: auto; padding-block: 8px; }
+.cat-circle {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  color: var(--ink); text-decoration: none; min-width: 64px;
+}
+.cat-emoji {
+  font-size: 1.7rem; background: #f3f4f6; border-radius: 999px;
+  width: 60px; height: 60px; display: grid; place-items: center;
+}
+h2 { font-size: 1.2rem; margin-block: 22px 10px; }
+/* شبكة عمودين على الموبايل، 4 على الشاشات الواسعة */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (min-width: 800px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+.hscroll { display: flex; gap: 12px; overflow-x: auto; padding-block-end: 6px; }
+.hscroll-item { min-width: 160px; max-width: 160px; }
+.card {
+  display: block; border: 1px solid var(--line); border-radius: 14px;
+  overflow: hidden; color: var(--ink); text-decoration: none; background: var(--bg);
+}
+.card-img {
+  position: relative; aspect-ratio: 4 / 5; background: #f9fafb;
+  display: grid; place-items: center;
+}
+.card-emoji { font-size: 3.2rem; }
+.badge {
+  position: absolute; top: 8px; inset-inline-start: 8px; color: #fff;
+  font-size: 0.8rem; padding-inline: 8px; border-radius: 999px;
+}
+.badge-sale { background: var(--sale); }
+.badge-new { background: var(--accent); }
+.card-body { padding: 10px; }
+.card-name {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; min-height: 3.2em;
+}
+.card-price { display: flex; gap: 8px; align-items: baseline; }
+.price-now { font-weight: 800; }
+.price-old { color: var(--muted); text-decoration: line-through; font-size: 0.9rem; }
+.trust {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  margin-block: 26px; padding: 14px; background: #f9fafb; border-radius: 14px;
+}
+.footer {
+  border-top: 1px solid var(--line); padding-block: 18px 30px;
+  color: var(--muted); display: grid; gap: 6px;
+}
