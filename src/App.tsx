@@ -6,6 +6,7 @@ import { HomePage, CategoryPage, SearchPage } from './pages/Shop'
 import ProductPage from './pages/Product'
 import CheckoutPage from './pages/Checkout'
 import { ContactPage, MyOrdersPage, ReturnsPage, ShippingPage, TrackPage } from './pages/Trust'
+import { BestSellersPage, CouponsReportPage, InventoryReportPage, ReorderAlertsPage, ReportsIndexPage, SalesReportPage } from './pages/Reports'
 
 function Shell() {
   const cart = useCart()
@@ -24,6 +25,12 @@ function Shell() {
   else if (path === '/contact') page = <ContactPage />
   else if (path === '/track') page = <TrackPage presetNumber={params.get('number') ?? undefined} />
   else if (path === '/my-orders') page = <MyOrdersPage />
+  else if (path === '/admin/reports') page = <ReportsIndexPage />
+  else if (path === '/admin/reports/sales') page = <SalesReportPage />
+  else if (path === '/admin/reports/best-sellers') page = <BestSellersPage />
+  else if (path === '/admin/reports/coupons') page = <CouponsReportPage />
+  else if (path === '/admin/reports/inventory') page = <InventoryReportPage />
+  else if (path === '/admin/reports/reorder') page = <ReorderAlertsPage />
   else
     page = (
       <main className="empty">
@@ -67,7 +74,8 @@ function Shell() {
           <a href="/shipping">الشحن والتوصيل</a> •{' '}
           <a href="/contact">تواصل معانا</a> •{' '}
           <a href="/track">تتبّع طلبك</a> •{' '}
-          <a href="/my-orders">طلباتي</a>
+          <a href="/my-orders">طلباتي</a> •{' '}
+          <a href="/admin/reports">تقارير المتجر</a>
         </div>
       </footer>
       <CartDrawer />

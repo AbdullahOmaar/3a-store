@@ -211,3 +211,19 @@ a.logo { color: var(--ink); text-decoration: none; margin-inline-end: auto; }
   padding: 14px; margin-block: 10px; color: var(--ink); text-decoration: none;
 }
 .footer a { color: var(--muted); }
+
+/* ==== تقارير P1 (دفعة 8) ==== */
+.admin-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-block: 12px; }
+.admin-nav a { padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); text-decoration: none; min-height: 40px; display: inline-flex; align-items: center; }
+.period-filter { margin-block: 12px; }
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-block: 12px; }
+.kpi { border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 4px; }
+.kpi-label { font-size: 0.85rem; color: var(--muted); }
+.kpi-value { font-size: 1.4rem; font-weight: 800; }
+.bars { display: flex; align-items: flex-end; gap: 4px; height: 140px; padding-block-start: 20px; border-block-end: 2px solid var(--line); }
+.bar { flex: 1; min-width: 0; background: var(--accent); border: none; border-radius: 4px 4px 0 0; padding: 0; position: relative; cursor: pointer; }
+.bar.on { background: var(--sale); }
+.bar-val { position: absolute; inset-inline: 0; top: -18px; font-size: 0.65rem; color: var(--muted); text-align: center; }
+.bars-labels { display: flex; gap: 4px; margin-block-start: 4px; }
+.bars-labels span { flex: 1; text-align: center; font-size: 0.7rem; color: var(--muted); }
+.tabs { display: flex; gap: 8px; margin-block: 12px; }
