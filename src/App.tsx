@@ -8,6 +8,8 @@ import CheckoutPage from './pages/Checkout'
 import { ContactPage, MyOrdersPage, ReturnsPage, ShippingPage, TrackPage } from './pages/Trust'
 import { BestSellersPage, CouponsReportPage, InventoryReportPage, ReorderAlertsPage, ReportsIndexPage, SalesReportPage } from './pages/Reports'
 import CouponsAdminPage from './pages/Coupons'
+import AbandonedPage from './pages/Abandoned'
+import ReviewsAdminPage from './pages/Reviews'
 import VersionLine from './components/VersionLine'
 
 function Shell() {
@@ -34,6 +36,8 @@ function Shell() {
   else if (path === '/admin/reports/inventory') page = <InventoryReportPage />
   else if (path === '/admin/reports/reorder') page = <ReorderAlertsPage />
   else if (path === '/admin/coupons') page = <CouponsAdminPage />
+  else if (path === '/admin/abandoned') page = <AbandonedPage />
+  else if (path === '/admin/reviews') page = <ReviewsAdminPage />
   else
     page = (
       <main className="empty">

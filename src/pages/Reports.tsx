@@ -33,6 +33,8 @@ function AdminShell({ title, children }: { title: string; children: React.ReactN
         <a href="/admin/reports/inventory">المخزون</a>
         <a href="/admin/reports/reorder">إعادة الطلب {alerts > 0 && <span className="badge badge-out">{alerts}</span>}</a>
         <a href="/admin/coupons">إدارة الكوبونات</a>
+        <a href="/admin/abandoned">السلة المتروكة</a>
+        <a href="/admin/reviews">التقييمات</a>
       </nav>
       <p className="hint">البيانات لحد {lastUpdatedText()} — بيانات عرض محسوبة من طلبات تجريبية (المبيعات = المسلّمة بس).</p>
       {children}
