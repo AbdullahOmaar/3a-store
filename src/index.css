@@ -238,3 +238,16 @@ a.logo { color: var(--ink); text-decoration: none; margin-inline-end: auto; }
 .version-line { font-weight: 700; font-size: 0.95rem; margin-block: 10px; }
 .footer .version-line { color: var(--ink); }
 .banner .version-line { color: var(--ink); opacity: 0.85; }
+
+/* ==== التقييمات (دفعة 11) ==== */
+.review-summary { display: flex; align-items: center; gap: 10px; margin-block: 8px; }
+.review-dist { display: grid; gap: 4px; margin-block-end: 12px; max-width: 320px; }
+.dist-row { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+.dist-bar { flex: 1; height: 8px; background: var(--surface-muted, #eee); border-radius: 4px; overflow: hidden; }
+.dist-bar span { display: block; height: 100%; background: #e8a13a; }
+.review-card { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-block: 8px; }
+.review-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.review-cta, .review-form { border: 1px dashed var(--line); border-radius: 12px; padding: 12px; margin-block: 12px; }
+.star-input { display: flex; gap: 6px; margin-block: 8px; }
+.star-btn { font-size: 30px; line-height: 1; background: none; border: none; cursor: pointer; color: var(--muted, #bbb); min-width: 44px; min-height: 44px; padding: 0; }
+.star-btn.on { color: #e8a13a; }

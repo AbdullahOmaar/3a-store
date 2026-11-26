@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { products, sizeCharts, variantPrice, type Product } from '../data/sample'
 import ProductCard from '../components/ProductCard'
+import ReviewsSection from '../components/ReviewsSection'
 import { useCart } from '../store/cart'
 
 function SizeGuide({ product, onPick }: { product: Product; onPick: (size: string) => void }) {
@@ -249,6 +250,8 @@ export default function ProductPage({ slug }: { slug: string }) {
         <p>الخامة: {product.material} • طريقة الغسيل: {product.care}</p>
         <p>الموديل طوله/ها <span dir="ltr">{product.modelHeight}</span> سم ولابس/ة مقاس {product.modelSize}</p>
       </section>
+
+      <ReviewsSection slug={product.slug} productName={product.name} />
 
       {similar.length > 0 && (
         <section>
