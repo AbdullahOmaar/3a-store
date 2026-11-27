@@ -10,6 +10,7 @@ import { BestSellersPage, CouponsReportPage, InventoryReportPage, ReorderAlertsP
 import CouponsAdminPage from './pages/Coupons'
 import AbandonedPage from './pages/Abandoned'
 import ReviewsAdminPage from './pages/Reviews'
+import { AdminHomePage, AdminOrderDetailPage, AdminOrdersPage, AdminProductsPage, AdminSettingsPage } from './pages/Admin'
 import VersionLine from './components/VersionLine'
 
 function Shell() {
@@ -29,6 +30,11 @@ function Shell() {
   else if (path === '/contact') page = <ContactPage />
   else if (path === '/track') page = <TrackPage presetNumber={params.get('number') ?? undefined} />
   else if (path === '/my-orders') page = <MyOrdersPage />
+  else if (path === '/admin') page = <AdminHomePage />
+  else if (path === '/admin/orders') page = <AdminOrdersPage />
+  else if (path.startsWith('/admin/orders/')) page = <AdminOrderDetailPage number={path.split('/')[3] ?? ''} />
+  else if (path === '/admin/products') page = <AdminProductsPage />
+  else if (path === '/admin/settings') page = <AdminSettingsPage />
   else if (path === '/admin/reports') page = <ReportsIndexPage />
   else if (path === '/admin/reports/sales') page = <SalesReportPage />
   else if (path === '/admin/reports/best-sellers') page = <BestSellersPage />

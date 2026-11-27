@@ -20,13 +20,17 @@ import {
 
 // ---------- هيكل لوحة التقارير (دفعة 5 هتبني لوحة التحكم الكاملة — دي شاشات التقارير بس) ----------
 
-function AdminShell({ title, children }: { title: string; children: React.ReactNode }) {
+export function AdminShell({ title, children }: { title: string; children: React.ReactNode }) {
   const alerts = reorderAlerts(sampleOrders).length
   return (
     <main>
-      <p className="hint">لوحة التحكم — التقارير</p>
+      <p className="hint">لوحة التحكم</p>
       <h1 className="page-title">{title}</h1>
       <nav className="admin-nav">
+        <a href="/admin">الرئيسية</a>
+        <a href="/admin/orders">الطلبات</a>
+        <a href="/admin/products">المنتجات</a>
+        <a href="/admin/settings">الإعدادات</a>
         <a href="/admin/reports/sales">المبيعات</a>
         <a href="/admin/reports/best-sellers">الأعلى مبيعًا</a>
         <a href="/admin/reports/coupons">الكوبونات</a>

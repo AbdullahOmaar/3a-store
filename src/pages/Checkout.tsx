@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { useCart } from '../store/cart'
 import { cleanEgyptPhone, egyptPhoneError } from '../lib/arabic'
-import { FREE_SHIPPING_THRESHOLD, governorates } from '../data/governorates'
+import { effectiveGovernorates, getStoreConfig } from '../data/admin'
 import { recordCouponUse, validateCoupon } from '../data/coupons'
 import CouponField from '../components/CouponField'
 
@@ -35,13 +35,15 @@ export default function CheckoutPage() {
   )
 
   const [couponError, setCouponError] = useState<string | null>(null)
-  const gov = governorates.find((g) => g.name === form.gov)
+  const govs = effectiveGovernorates()
+  const threshold = getStoreConfig().threshold
+  const gov = govs.find((g) => g.name === form.gov)
   // الخصم على إجمالي المنتجات بس مش الشحن، والشحن المجاني بيتحسب على قيمة المنتجات بعد الخصم
   const productsTotal = cart.subtotal - cart.couponDiscount
-  const freeShip = productsTotal >= FREE_SHIPPING_THRESHOLD && productsTotal > 0
+  const freeShip = productsTotal >= threshold && productsTotal > 0
   const shipping = !gov ? 0 : freeShip ? 0 : gov.fee
   const total = productsTotal + shipping
-  const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - productsTotal)
+  const remaining = Math.max(0, threshold - productsTotal)
 
   const set = (k: keyof FormState, v: string) => {
     setForm((f) => ({ ...f, [k]: v, ...(k === 'gov' ? { city: '' } : {}) }))
@@ -213,7 +215,7 @@ export default function CheckoutPage() {
         <label className="f-field">المحافظة
           <select value={form.gov} onChange={(e) => set('gov', e.target.value)}>
             <option value="">اختار محافظتك…</option>
-            {governorates.map((g) => (
+            {govs.map((g) => (
               <option key={g.name} value={g.name}>{g.name} — شحن {g.fee} ج.م</option>
             ))}
           </select>
@@ -254,5 +256,5 @@ export default function CheckoutPage() {
 }
 
 export function useCheckoutSummary() {
-  return useMemo(() => FREE_SHIPPING_THRESHOLD, [])
+  return useMemo(() => getStoreConfig().threshold, [])
 }

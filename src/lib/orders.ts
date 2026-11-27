@@ -23,6 +23,10 @@ export interface LocalOrder {
   status: string
   trackingNumber?: string
   shippingCompany?: string
+  confirmedWithCustomer?: boolean
+  confirmationChannel?: string
+  contactAttempts?: number
+  deliveryAttempts?: number
   cancelReason?: string
   cancelNote?: string
   createdAt: string

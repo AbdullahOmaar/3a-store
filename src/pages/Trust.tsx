@@ -1,12 +1,10 @@
 import { useState } from 'react'
-import { FREE_SHIPPING_THRESHOLD, governorates } from '../data/governorates'
+import { effectiveGovernorates, getStoreConfig } from '../data/admin'
 import {
   CANCEL_REASON_LABELS,
   REFUND_DAYS,
-  RETURN_DAYS,
   STATUS_LABELS,
   STORE_HOURS,
-  STORE_WHATSAPP,
   TERMINAL_STATUSES,
   TRACK_STEPS,
 } from '../data/settings'
@@ -14,7 +12,7 @@ import { cleanEgyptPhone, egyptPhoneError } from '../lib/arabic'
 import { findOrderForTracking, formatDateTime, loadOrders, type LocalOrder } from '../lib/orders'
 
 function WhatsAppButton({ label, message }: { label: string; message?: string }) {
-  const href = `https://wa.me/${STORE_WHATSAPP}${message ? `?text=${encodeURIComponent(message)}` : ''}`
+  const href = `https://wa.me/${getStoreConfig().whatsapp}${message ? `?text=${encodeURIComponent(message)}` : ''}`
   return (
     <a className="cta-btn" href={href} target="_blank" rel="noreferrer">{label}</a>
   )
@@ -22,11 +20,12 @@ function WhatsAppButton({ label, message }: { label: string; message?: string })
 
 // شاشة د1 — الاستبدال والاسترجاع (الأرقام من الإعدادات مش نص ثابت — حزمة 6)
 export function ReturnsPage() {
+  const returnDays = getStoreConfig().returnDays
   return (
     <main>
       <h1 className="page-title">الاستبدال والاسترجاع</h1>
       <ul className="trust-list">
-        <li>المدة: استبدال واسترجاع خلال <strong dir="ltr">{RETURN_DAYS}</strong> يوم من الاستلام.</li>
+        <li>المدة: استبدال واسترجاع خلال <strong dir="ltr">{returnDays}</strong> يوم من الاستلام.</li>
         <li>الحالة المطلوبة: القطعة بحالتها الأصلية وبالتكت، من غير ما تتغسل أو تتلبس.</li>
         <li>مين بيدفع شحن الاسترجاع: العميل، إلا لو الغلط من المتجر — ساعتها الشحن علينا.</li>
         <li>إزاي الفلوس بترجع: كاش عند الاستلام من المندوب، أو تحويل — وبتوصل خلال <strong dir="ltr">{REFUND_DAYS}</strong> أيام من الاستلام.</li>
@@ -46,10 +45,11 @@ export function ReturnsPage() {
 
 // شاشة د2 — الشحن والتوصيل (نفس جدول التشيك أوت حرفيًا)
 export function ShippingPage() {
+  const cfg = getStoreConfig()
   return (
     <main>
       <h1 className="page-title">الشحن والتوصيل</h1>
-      <p>الشحن مجاني للطلبات فوق <strong dir="ltr">{FREE_SHIPPING_THRESHOLD}</strong> جنيه.</p>
+      <p>الشحن مجاني للطلبات فوق <strong dir="ltr">{cfg.threshold}</strong> جنيه.</p>
       <p>الدفع كاش عند الاستلام، والمندوب بيسلّمك وبياخد الفلوس. لو مش موجود وقت التسليم، المندوب بيحاول مرة تانية، وبعدها كلّمنا واتساب.</p>
       <div className="table-scroll">
         <table className="size-table">
@@ -57,7 +57,7 @@ export function ShippingPage() {
             <tr><th>المحافظة</th><th>الشحن (ج.م)</th><th>المدة</th></tr>
           </thead>
           <tbody>
-            {governorates.map((g) => (
+            {effectiveGovernorates().map((g) => (
               <tr key={g.name}>
                 <td>{g.name}</td>
                 <td dir="ltr">{g.fee === 0 ? 'مجاني' : g.fee}</td>

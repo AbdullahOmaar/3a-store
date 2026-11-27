@@ -251,3 +251,25 @@ a.logo { color: var(--ink); text-decoration: none; margin-inline-end: auto; }
 .star-input { display: flex; gap: 6px; margin-block: 8px; }
 .star-btn { font-size: 30px; line-height: 1; background: none; border: none; cursor: pointer; color: var(--muted, #bbb); min-width: 44px; min-height: 44px; padding: 0; }
 .star-btn.on { color: #e8a13a; }
+
+/* لوحة التحكم — دفعة 5 */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+.kpi-card { background: var(--card, #fff); border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+.kpi-card strong { font-size: 20px; }
+.alert-line { background: #fef3c7; border-radius: 8px; padding: 8px 10px; }
+.stock-line { margin: 4px 0; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; align-items: center; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.form-grid { display: grid; gap: 10px; margin: 10px 0; }
+.form-grid input, .form-grid select, .form-grid textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font: inherit; box-sizing: border-box; }
+.variant-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f3f4f6; flex-wrap: wrap; }
+.variant-row input { width: 90px; padding: 8px; border: 1px solid #d1d5db; border-radius: 8px; font: inherit; }
+.stock-out { color: #b91c1c; font-weight: 700; }
+.stock-low { color: #b45309; font-weight: 700; }
+.danger-btn { background: #b91c1c; color: #fff; border: 0; border-radius: 10px; padding: 10px 16px; font: inherit; cursor: pointer; min-height: 44px; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: flex-end; justify-content: center; z-index: 60; }
+.modal { background: #fff; width: 100%; max-width: 480px; max-height: 88vh; overflow: auto; border-radius: 16px 16px 0 0; padding: 16px; box-sizing: border-box; }
+.modal label { display: block; margin: 10px 0; }
+.modal select, .modal input, .modal textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font: inherit; box-sizing: border-box; margin-top: 4px; }
+.err { color: #b91c1c; }
+.order-head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
